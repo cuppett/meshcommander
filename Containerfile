@@ -1,5 +1,13 @@
 FROM docker.io/node:22-bookworm-slim
 
+ARG OCI_REVISION=unknown
+
+LABEL org.opencontainers.image.title="MeshCommander"
+LABEL org.opencontainers.image.description="Containerized MeshCommander with scoped legacy OpenSSL settings for Intel AMT"
+LABEL org.opencontainers.image.source="https://github.com/cuppett/meshcommander"
+LABEL org.opencontainers.image.revision="${OCI_REVISION}"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+
 ENV NODE_ENV=production
 
 WORKDIR /opt/meshcommander

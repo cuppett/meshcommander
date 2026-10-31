@@ -21,12 +21,17 @@ also carries GHSA-96hv-2xvq-fx4p (unauthenticated memory-exhaustion DoS). A
 forced upgrade breaks `express-ws`, so the host port must remain bound to
 loopback as shown below; do not expose this UI to the LAN or Internet.
 
-## Build
+## Build and publish
 
 ```bash
-cd ~/Development/vpro
-podman build -t localhost/vpro-meshcommander:latest .
+cd ~/Development/meshcommander
+IMAGE=ghcr.io/cuppett/meshcommander:latest
+podman build --build-arg OCI_REVISION="$(git rev-parse HEAD)" -t "$IMAGE" .
+podman push "$IMAGE"
 ```
+
+The `org.opencontainers.image.source` label links the published package to
+`https://github.com/cuppett/meshcommander`.
 
 ## Run
 
@@ -34,26 +39,35 @@ podman build -t localhost/vpro-meshcommander:latest .
 
 ```bash
 podman run --rm -it \
-  --name vpro-meshcommander \
+  --name meshcommander \
   -p 127.0.0.1:3001:3000 \
-  localhost/vpro-meshcommander:latest
+  -v ./data:/data:Z \
+  ghcr.io/cuppett/meshcommander:latest
 ```
 
 ### Systemd Quadlet (persistent service)
 
-A user quadlet is configured at `~/.config/containers/systemd/meshcommander.container`
-persisting state to `~/container-storage/meshcommander`:
+The tracked unit is `systemd/meshcommander.container`. Install it to
+`~/.config/containers/systemd/meshcommander.container`, then:
 
 ```bash
-systemctl --user status meshcommander.service
+systemctl --user daemon-reload
 systemctl --user restart meshcommander.service
+systemctl --user status meshcommander.service
 journalctl --user -u meshcommander.service -f
+```
+
+The unit uses `ghcr.io/cuppett/meshcommander:latest`, `AutoUpdate=registry`, and
+persists state to `~/container-storage/meshcommander`. A best-effort
+`podman pull` runs before each start; registry auto-update can be triggered with:
+
+```bash
+podman auto-update
 ```
 
 Open <http://127.0.0.1:3001> and add your AMT host (e.g. `192.0.2.10` or your
 host's LAN IP) as a TLS-enabled AMT target on port `16993`. Host port `3001`
 avoids the existing Open WebUI listener on port `3000`.
 
-To persist MeshCommander state in ad-hoc runs, create `data/` and add
-`-v ./data:/data:Z` to the run command. Treat that directory as sensitive:
-MeshCommander can store AMT credentials in its configuration.
+Treat `~/container-storage/meshcommander` as sensitive: MeshCommander can store
+AMT credentials in its configuration.
