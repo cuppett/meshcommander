@@ -26,12 +26,20 @@ loopback as shown below; do not expose this UI to the LAN or Internet.
 ```bash
 cd ~/Development/meshcommander
 IMAGE=ghcr.io/cuppett/meshcommander:latest
-podman build --build-arg OCI_REVISION="$(git rev-parse HEAD)" -t "$IMAGE" .
+REVISION="$(git rev-parse HEAD)"
+podman build \
+  --build-arg OCI_REVISION="$REVISION" \
+  --annotation "org.opencontainers.image.source=https://github.com/cuppett/meshcommander" \
+  --annotation "org.opencontainers.image.revision=$REVISION" \
+  --annotation "org.opencontainers.image.title=MeshCommander" \
+  --annotation "org.opencontainers.image.description=Containerized MeshCommander with scoped legacy OpenSSL settings for Intel AMT" \
+  --annotation "org.opencontainers.image.licenses=Apache-2.0" \
+  -t "$IMAGE" .
 podman push "$IMAGE"
 ```
 
-The `org.opencontainers.image.source` label links the published package to
-`https://github.com/cuppett/meshcommander`.
+The `org.opencontainers.image.source` OCI annotation links the published package
+to `https://github.com/cuppett/meshcommander`.
 
 ## Run
 
