@@ -1,0 +1,8 @@
+{
+  "name": "vpro-meshcommander-container",
+  "private": true,
+  "description": "MeshCommander with container-scoped legacy OpenSSL settings for Intel AMT",
+  "dependencies": {
+    "meshcommander": "0.9.5-a"
+  }
+}

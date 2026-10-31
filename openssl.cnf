@@ -1,0 +1,15 @@
+# Legacy Intel AMT compatibility, scoped to this container/process only.
+# OpenSSL 3 disables unsafe legacy renegotiation and old ciphers by default.
+nodejs_conf = openssl_init
+
+[openssl_init]
+ssl_conf = ssl_configuration
+
+[ssl_configuration]
+system_default = tls_system_default
+
+[tls_system_default]
+MinProtocol = TLSv1
+CipherString = DEFAULT@SECLEVEL=0
+Options = UnsafeLegacyRenegotiation
+Options = UnsafeLegacyServerConnect
