@@ -30,6 +30,8 @@ podman build -t localhost/vpro-meshcommander:latest .
 
 ## Run
 
+### Ad-hoc container
+
 ```bash
 podman run --rm -it \
   --name vpro-meshcommander \
@@ -37,11 +39,21 @@ podman run --rm -it \
   localhost/vpro-meshcommander:latest
 ```
 
-Open <http://127.0.0.1:3001> and add your AMT host (e.g. `192.0.2.10` or your
-host's LAN IP) as a TLS-enabled AMT target on port `16993`. Stop the container
-with Ctrl-C. Host port `3001` avoids the existing Open WebUI listener on port
-`3000`.
+### Systemd Quadlet (persistent service)
 
-To persist MeshCommander state, create `data/` and add
+A user quadlet is configured at `~/.config/containers/systemd/meshcommander.container`
+persisting state to `~/container-storage/meshcommander`:
+
+```bash
+systemctl --user status meshcommander.service
+systemctl --user restart meshcommander.service
+journalctl --user -u meshcommander.service -f
+```
+
+Open <http://127.0.0.1:3001> and add your AMT host (e.g. `192.0.2.10` or your
+host's LAN IP) as a TLS-enabled AMT target on port `16993`. Host port `3001`
+avoids the existing Open WebUI listener on port `3000`.
+
+To persist MeshCommander state in ad-hoc runs, create `data/` and add
 `-v ./data:/data:Z` to the run command. Treat that directory as sensitive:
 MeshCommander can store AMT credentials in its configuration.
