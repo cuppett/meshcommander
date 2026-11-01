@@ -41,6 +41,21 @@ podman push "$IMAGE"
 The `org.opencontainers.image.source` OCI annotation links the published package
 to `https://github.com/cuppett/meshcommander`.
 
+### CI/CD (AWS)
+
+Continuous builds are handled by the `meshcommander-pipeline-main` CodePipeline
+(us-east-1), which builds multi-arch images from this repository's `main`
+branch using the [aws-codebuild-podman](https://github.com/cuppett/aws-codebuild-podman)
+stacks:
+
+- Source: GitHub `cuppett/meshcommander` branch `main` (CodeStar connection)
+- Base image: ECR mirror of `docker.io/library/node:22-bookworm-slim`
+  (refreshed by [aws-ecr-mirror](https://github.com/cuppett/aws-ecr-mirror));
+  a base image update re-triggers the build
+- Output: `771294529343.dkr.ecr.us-east-1.amazonaws.com/meshcommander:main`
+- On push, the mirror controller publishes the image to
+  `ghcr.io/cuppett/meshcommander` with both `main` and `latest` tags
+
 ## Run
 
 ### Ad-hoc container
@@ -50,7 +65,7 @@ podman run --rm -it \
   --name meshcommander \
   -p 127.0.0.1:3001:3000 \
   -v ./data:/data:Z \
-  ghcr.io/cuppett/meshcommander:latest
+  ghcr.io/cuppett/meshcommander:main
 ```
 
 ### Systemd Quadlet (persistent service)
@@ -65,7 +80,7 @@ systemctl --user status meshcommander.service
 journalctl --user -u meshcommander.service -f
 ```
 
-The unit uses `ghcr.io/cuppett/meshcommander:latest`, `AutoUpdate=registry`, and
+The unit uses `ghcr.io/cuppett/meshcommander:main`, `AutoUpdate=registry`, and
 persists state to `~/container-storage/meshcommander`. A best-effort
 `podman pull` runs before each start; registry auto-update can be triggered with:
 

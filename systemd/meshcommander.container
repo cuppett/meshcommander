@@ -6,12 +6,12 @@ Wants=network-online.target
 [Container]
 AutoUpdate=registry
 ContainerName=meshcommander
-Image=ghcr.io/cuppett/meshcommander:latest
+Image=ghcr.io/cuppett/meshcommander:main
 PublishPort=127.0.0.1:3001:3000
 Volume=/home/scuppett/container-storage/meshcommander:/data:Z
 
 [Service]
-ExecStartPre=-/usr/bin/podman pull ghcr.io/cuppett/meshcommander:latest
+ExecStartPre=-/usr/bin/podman pull ghcr.io/cuppett/meshcommander:main
 Restart=always
 
 [Install]
